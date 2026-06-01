@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 A Special Question…</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════ */
+:root{
+  --hot:    #ff4d8f;
+  --mid:    #ff7db3;
+  --soft:   #ffaed0;
+  --pale:   #ffe4f0;
+  --cream:  #fff5fa;
+  --bg0:    #ffd6e8;
+  --bg1:    #ffe9f3;
+  --sh1:    #c4305e;
+  --sh2:    #841840;
+  --lav:    #f0d0ff;
+  --gold:   #ffe066;
+  --white:  #ffffff;
+}
+
+/* ════════════════════════════════════════
+   RESET + BASE
+════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Press Start 2P',monospace}
+
+/* ════════════════════════════════════════
+   ANIMATED BG GRADIENT
+════════════════════════════════════════ */
+body{
+  background: linear-gradient(135deg,#ffd6e8,#ffe9f3,#f8d4f8,#ffd6e8);
+  background-size:400% 400%;
+  animation: bgShift 12s ease infinite;
+}
+@keyframes bgShift{
+  0%  {background-position:0% 50%}
+  50% {background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* CRT scanlines */
+body::after{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,150,180,.05) 3px,rgba(255,150,180,.05) 4px);
+  pointer-events:none;z-index:1000;
+}
+
+/* ════════════════════════════════════════
+   CANVASES
+════════════════════════════════════════ */
+#bgCanvas,#confCanvas{position:fixed;inset:0;pointer-events:none}
+#bgCanvas{z-index:1}
+#confCanvas{z-index:9;opacity:0;transition:opacity .4s}
+#confCanvas.on{opacity:1}
+
+/* ════════════════════════════════════════
+   SCREENS
+════════════════════════════════════════ */
+.screen{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:10;
+  transition:opacity .9s ease,transform .9s ease;
+}
+.screen.out{opacity:0;transform:scale(1.1);pointer-events:none}
+.screen.gone{display:none}
+
+/* ════════════════════════════════════════
+   SCREEN 1 — QUESTION
+════════════════════════════════════════ */
+#s1{gap:0}
+
+/* central glow disk */
+#s1::before{
+  content:'';position:absolute;
+  width:min(600px,90vw);height:min(600px,90vw);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.55) 0%,rgba(255,180,210,.22) 45%,transparent 72%);
+  pointer-events:none;
+  animation:glowPulse 4s ease-in-out infinite;
+}
+@keyframes glowPulse{
+  0%,100%{transform:scale(1);opacity:.8}
+  50%    {transform:scale(1.08);opacity:1}
+}
+
+/* ── deco corner clouds ── */
+.deco{
+  position:fixed;font-size:clamp(1.4rem,4vw,2.4rem);
+  pointer-events:none;z-index:5;animation:decoFloat 5s ease-in-out infinite;
+  filter:drop-shadow(0 2px 8px rgba(255,100,160,.35));
+}
+.deco.tl{top:clamp(.8rem,2vw,1.6rem);left:clamp(.8rem,2vw,1.6rem);animation-delay:0s}
+.deco.tr{top:clamp(.8rem,2vw,1.6rem);right:clamp(.8rem,2vw,1.6rem);animation-delay:.9s}
+.deco.bl{bottom:clamp(.8rem,2vw,1.6rem);left:clamp(.8rem,2vw,1.6rem);animation-delay:1.8s}
+.deco.br{bottom:clamp(.8rem,2vw,1.6rem);right:clamp(.8rem,2vw,1.6rem);animation-delay:.45s}
+.deco.ml{top:50%;left:clamp(.5rem,2vw,1.2rem);transform:translateY(-50%);animation-delay:2.4s;font-size:clamp(1rem,2.5vw,1.8rem);opacity:.7}
+.deco.mr{top:50%;right:clamp(.5rem,2vw,1.2rem);transform:translateY(-50%);animation-delay:1.2s;font-size:clamp(1rem,2.5vw,1.8rem);opacity:.7}
+@keyframes decoFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%    {transform:translateY(-8px) scale(1.08)}
+}
+.deco.ml,.deco.mr{animation:decoFloatH 5s ease-in-out infinite}
+@keyframes decoFloatH{
+  0%,100%{transform:translateY(-50%) scale(1)}
+  50%    {transform:translateY(calc(-50% - 7px)) scale(1.08)}
+}
+
+/* ── title ── */
+.title{
+  font-size:clamp(1rem,3.8vw,2rem);
+  color:var(--hot);text-align:center;line-height:1.8;
+  padding:0 1.4rem;letter-spacing:.04em;
+  text-shadow:
+    2px  2px 0 var(--sh1),
+    4px  4px 0 var(--sh2),
+    0 0 28px rgba(255,77,143,.6),
+    0 0 60px rgba(255,77,143,.3);
+  animation:titleGlow 3s ease-in-out infinite;
+  position:relative;z-index:2;
+}
+@keyframes titleGlow{
+  0%,100%{text-shadow:2px 2px 0 var(--sh1),4px 4px 0 var(--sh2),0 0 28px rgba(255,77,143,.6),0 0 60px rgba(255,77,143,.3)}
+  50%    {text-shadow:2px 2px 0 var(--sh1),4px 4px 0 var(--sh2),0 0 50px rgba(255,77,143,.95),0 0 100px rgba(255,77,143,.5)}
+}
+
+/* ── subtitle ── */
+.sub{
+  font-family:'Pixelify Sans',sans-serif;font-weight:600;
+  font-size:clamp(1rem,2.6vw,1.3rem);
+  color:var(--soft);margin-top:1rem;
+  letter-spacing:.18em;text-shadow:1px 1px 0 var(--sh1);
+  animation:blink 1.8s step-end infinite;position:relative;z-index:2;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── side hearts row ── */
+.side-hearts{
+  display:flex;align-items:center;justify-content:center;gap:1.2rem;
+  margin-top:.9rem;font-size:clamp(.9rem,2.5vw,1.4rem);
+  animation:fadeIn 1s ease both;animation-delay:.6s;
+  position:relative;z-index:2;
+}
+.sh-item{
+  animation:heartPop 2.4s ease-in-out infinite;
+  filter:drop-shadow(0 0 6px rgba(255,77,143,.55));
+}
+.sh-item:nth-child(2){animation-delay:.4s;font-size:1.5em}
+.sh-item:nth-child(3){animation-delay:.8s}
+.sh-item:nth-child(4){animation-delay:.2s;font-size:1.3em}
+.sh-item:nth-child(5){animation-delay:.6s}
+@keyframes heartPop{
+  0%,100%{transform:scale(1) translateY(0)}
+  30%{transform:scale(1.25) translateY(-4px)}
+  60%{transform:scale(1) translateY(0)}
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── buttons ── */
+.btn-row{
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(1rem,4vw,2.5rem);margin-top:2.2rem;
+  position:relative;z-index:20;
+}
+
+.pxbtn{
+  font-family:'Press Start 2P',monospace;
+  border:none;cursor:pointer;border-radius:8px;
+  position:relative;white-space:nowrap;user-select:none;
+  letter-spacing:.05em;
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;
+}
+/* top shine */
+.pxbtn::before{
+  content:'';position:absolute;top:4px;left:5px;right:5px;height:5px;
+  background:rgba(255,255,255,.5);border-radius:4px;pointer-events:none;
+}
+/* bottom pixel edge */
+.pxbtn::after{
+  content:'';position:absolute;bottom:-5px;left:3px;right:3px;height:5px;
+  border-radius:0 0 6px 6px;pointer-events:none;
+}
+
+#btnYes{
+  font-size:clamp(.6rem,2.2vw,.95rem);
+  padding:.9em 2.2em;
+  color:#fff;
+  background:linear-gradient(165deg,#ff85b8,#e8306a);
+  box-shadow:
+    0 5px 0 var(--sh1),
+    0 8px 0 var(--sh2),
+    0 0 25px rgba(232,48,106,.55),
+    0 0 55px rgba(232,48,106,.25),
+    inset 0 1px 0 rgba(255,255,255,.3);
+}
+#btnYes::after{background:var(--sh1)}
+#btnYes:hover{
+  transform:translateY(-4px) scale(1.07);
+  box-shadow:
+    0 7px 0 var(--sh1),
+    0 10px 0 var(--sh2),
+    0 0 40px rgba(232,48,106,.75),
+    0 0 80px rgba(232,48,106,.4),
+    inset 0 1px 0 rgba(255,255,255,.3);
+}
+#btnYes:active{transform:translateY(3px) scale(.97)}
+
+#btnNo{
+  font-size:clamp(.5rem,1.8vw,.78rem);
+  padding:.82em 1.9em;
+  color:#fff;
+  background:linear-gradient(165deg,#ffb3cc,#ff6fa3);
+  box-shadow:
+    0 4px 0 #c73070,
+    0 6px 0 #8b1a4a,
+    0 0 18px rgba(255,111,163,.35),
+    inset 0 1px 0 rgba(255,255,255,.3);
+}
+#btnNo::after{background:#c73070}
+#btnNo:hover{transform:translateY(-2px) scale(1.04);filter:brightness(1.08)}
+#btnNo:active{transform:translateY(2px)}
+#btnNo.runaway{position:fixed;transition:top .28s cubic-bezier(.22,1,.36,1),left .28s cubic-bezier(.22,1,.36,1)}
+
+/* ════════════════════════════════════════
+   SCREEN 2 — CELEBRATION
+════════════════════════════════════════ */
+#s2{
+  justify-content:center;
+  background:radial-gradient(ellipse 75% 75% at 50% 45%,rgba(255,255,255,.65),rgba(255,214,232,.4) 55%,transparent 80%);
+}
+
+.s2-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  gap:clamp(.9rem,2.5vh,1.6rem);
+  padding:clamp(1rem,3vh,2rem) clamp(1rem,4vw,2rem);
+  max-width:640px;width:100%;position:relative;z-index:2;
+}
+
+/* ── big SVG heart ── */
+.heart-wrap{
+  position:relative;
+  width:clamp(130px,22vw,190px);
+  height:clamp(130px,22vw,190px);
+}
+.heart-wrap svg{
+  width:100%;height:100%;
+  animation:heartbeat 1.05s ease-in-out infinite;
+  filter:drop-shadow(0 0 18px rgba(220,50,100,.7)) drop-shadow(0 0 40px rgba(220,50,100,.4));
+}
+@keyframes heartbeat{
+  0%,100%{transform:scale(1)}
+  15%    {transform:scale(1.2)}
+  30%    {transform:scale(1)}
+  45%    {transform:scale(1.12)}
+  70%    {transform:scale(1)}
+}
+/* glow ring behind heart */
+.heart-glow{
+  position:absolute;inset:-30%;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,100,150,.4) 0%,rgba(255,150,190,.2) 40%,transparent 70%);
+  animation:glowRing 2.1s ease-in-out infinite;
+  z-index:-1;
+}
+@keyframes glowRing{
+  0%,100%{transform:scale(1);opacity:.7}
+  50%    {transform:scale(1.15);opacity:1}
+}
+
+/* ── s2 text ── */
+.s2-shout{
+  font-size:clamp(.72rem,2.6vw,1.1rem);
+  color:var(--hot);text-align:center;line-height:1.9;
+  text-shadow:2px 2px 0 var(--sh1),4px 4px 0 var(--sh2),0 0 30px rgba(255,77,143,.7);
+  animation:titleGlow 2.5s ease-in-out infinite;
+}
+
+.s2-promise{
+  font-family:'Pixelify Sans',sans-serif;font-weight:600;
+  font-size:clamp(1.05rem,2.8vw,1.3rem);
+  color:#b52e58;text-align:center;line-height:1.75;
+  max-width:500px;
+  text-shadow:1px 1px 0 rgba(181,46,88,.2);
+}
+
+/* ── card ── */
+.s2-card{
+  width:min(100%,520px);
+  background:linear-gradient(140deg,#fff8fc,#ffe4f0,#fff0f7);
+  border:4px solid var(--hot);
+  border-radius:14px;padding:clamp(1.2rem,3vw,1.8rem) clamp(1.4rem,4vw,2.4rem);
+  text-align:center;position:relative;
+  box-shadow:
+    4px 4px 0 var(--sh1),
+    8px 8px 0 var(--sh2),
+    0 0 30px rgba(255,77,143,.4),
+    0 0 70px rgba(255,77,143,.2),
+    inset 0 0 30px rgba(255,220,235,.5);
+  animation:cardPop .7s cubic-bezier(.34,1.56,.64,1) both;
+  animation-delay:.35s;opacity:0;
+}
+@keyframes cardPop{
+  from{opacity:0;transform:scale(.82) translateY(22px)}
+  to  {opacity:1;transform:scale(1) translateY(0)}
+}
+
+/* card inner border */
+.s2-card::before{
+  content:'';position:absolute;inset:6px;
+  border:2px dashed var(--soft);border-radius:10px;
+  pointer-events:none;
+}
+/* card hearts top */
+.s2-card::after{
+  content:'💕 💖 💕';
+  position:absolute;top:-1.15em;left:50%;transform:translateX(-50%);
+  font-size:1.1rem;letter-spacing:.3em;
+  filter:drop-shadow(0 2px 8px rgba(255,77,143,.5));
+  white-space:nowrap;
+}
+
+.card-title{
+  font-size:clamp(.65rem,2.2vw,.95rem);
+  color:var(--hot);line-height:2;
+  text-shadow:2px 2px 0 var(--sh1),4px 4px 0 var(--sh2);
+  margin-bottom:.6em;
+}
+.card-sub{
+  font-family:'Pixelify Sans',sans-serif;font-weight:600;
+  font-size:clamp(.95rem,2.5vw,1.15rem);
+  color:#c43060;letter-spacing:.06em;
+  text-shadow:1px 1px 0 rgba(196,48,96,.2);
+}
+
+/* ════════════════════════════════════════
+   SPARKLE BURST (s2 entry)
+════════════════════════════════════════ */
+.sparkle{
+  position:fixed;pointer-events:none;z-index:15;
+  font-size:1.4rem;
+  animation:sparkleFly 1s cubic-bezier(.2,.8,.4,1) forwards;
+}
+@keyframes sparkleFly{
+  0%  {opacity:1;transform:translate(0,0) scale(1) rotate(0deg)}
+  100%{opacity:0;transform:var(--tx,translateX(80px)) scale(0) rotate(360deg)}
+}
+</style>
+</head>
+<body>
+
+<!-- ── decorative corners ── -->
+<span class="deco tl">✿</span>
+<span class="deco tr">✿</span>
+<span class="deco bl">❀</span>
+<span class="deco br">❀</span>
+<span class="deco ml">♡</span>
+<span class="deco mr">♡</span>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="confCanvas"></canvas>
+
+<!-- ══════════════════════════
+     SCREEN 1
+══════════════════════════ -->
+<div class="screen" id="s1">
+  <h1 class="title">Will you be my<br>girlfriend?</h1>
+  <p class="sub">✦ be honest ✦</p>
+
+  <div class="side-hearts">
+    <span class="sh-item">💗</span>
+    <span class="sh-item">💖</span>
+    <span class="sh-item">♥</span>
+    <span class="sh-item">💖</span>
+    <span class="sh-item">💗</span>
+  </div>
+
+  <div class="btn-row" id="btnRow">
+    <button class="pxbtn" id="btnYes" onclick="clickYes()">YES ♡</button>
+    <button class="pxbtn" id="btnNo"  onclick="clickNo()">NO</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     SCREEN 2
+══════════════════════════ -->
+<div class="screen out gone" id="s2">
+  <div class="s2-wrap">
+
+    <!-- big pixel heart -->
+    <div class="heart-wrap">
+      <div class="heart-glow"></div>
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+        <!-- base shape -->
+        <rect x="16" y="4"  width="12" height="4" fill="#ff4d8f"/>
+        <rect x="36" y="4"  width="12" height="4" fill="#ff4d8f"/>
+        <rect x="12" y="8"  width="18" height="4" fill="#e8306a"/>
+        <rect x="34" y="8"  width="18" height="4" fill="#e8306a"/>
+        <rect x="8"  y="12" width="48" height="8"  fill="#e8306a"/>
+        <rect x="4"  y="16" width="56" height="8"  fill="#ff4d8f"/>
+        <rect x="4"  y="24" width="56" height="8"  fill="#ff6fa3"/>
+        <rect x="8"  y="32" width="48" height="6"  fill="#ff85b3"/>
+        <rect x="12" y="38" width="40" height="6"  fill="#ff9dc0"/>
+        <rect x="16" y="44" width="32" height="5"  fill="#ffaed0"/>
+        <rect x="20" y="49" width="24" height="5"  fill="#ffbedd"/>
+        <rect x="24" y="54" width="16" height="4"  fill="#ffcce6"/>
+        <rect x="28" y="58" width="8"  height="4"  fill="#ffd6eb"/>
+        <!-- mid sheen -->
+        <rect x="20" y="14" width="6"  height="4"  fill="rgba(255,255,255,.45)"/>
+        <rect x="18" y="18" width="4"  height="3"  fill="rgba(255,255,255,.35)"/>
+        <rect x="38" y="14" width="6"  height="4"  fill="rgba(255,255,255,.3)"/>
+        <!-- deep shadow -->
+        <rect x="8"  y="36" width="6"  height="4"  fill="rgba(150,0,60,.12)"/>
+        <rect x="50" y="36" width="6"  height="4"  fill="rgba(150,0,60,.12)"/>
+      </svg>
+    </div>
+
+    <p class="s2-shout">¡Sabía que ibas<br>a decir que sí! 💖</p>
+
+    <p class="s2-promise">
+      Prometo dar todo lo de mi para hacer que esto funcione, sos todo lo que quiero y necesito.
+    </p>
+
+    <div class="s2-card">
+      <p class="card-title">Ahora oficialmente<br>sos mi novia 💕</p>
+      <p class="card-sub">— para siempre —</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   BACKGROUND PARTICLES
+═══════════════════════════════ */
+const bgC   = document.getElementById('bgCanvas');
+const bgX   = bgC.getContext('2d');
+let W=0,H=0,bgP=[];
+
+function resizeBg(){
+  W=bgC.width=innerWidth;
+  H=bgC.height=innerHeight;
+}
+resizeBg();
+addEventListener('resize',resizeBg);
+
+const HRT=['♥','♡','💗','💕','💖'];
+const SPK=['✦','✧','✩','★','✿','❀','✶'];
+
+function mkP(){
+  const isH=Math.random()<.6;
+  const size=Math.random()*16+7;
+  return{
+    x:Math.random()*W,
+    y:H+size+10,
+    vx:(Math.random()-.5)*.55,
+    vy:-(Math.random()*.75+.28),
+    size,
+    alpha:Math.random()*.45+.12,
+    rot:Math.random()*Math.PI*2,
+    rv:(Math.random()-.5)*.025,
+    sym:isH?HRT[Math.random()*HRT.length|0]:SPK[Math.random()*SPK.length|0],
+    col:isH
+      ?`hsl(${335+Math.random()*25},${82+Math.random()*12}%,${58+Math.random()*14}%)`
+      :`hsl(${270+Math.random()*70},${65+Math.random()*20}%,${62+Math.random()*16}%)`,
+    wA:Math.random()*1.4,
+    wS:Math.random()*.035+.01,
+    wT:Math.random()*Math.PI*2,
+  };
+}
+
+for(let i=0;i<80;i++){const p=mkP();p.y=Math.random()*H;bgP.push(p);}
+
+function drawBg(){
+  bgX.clearRect(0,0,W,H);
+  for(const p of bgP){
+    p.wT+=p.wS;
+    p.x+=p.vx+Math.sin(p.wT)*p.wA;
+    p.y+=p.vy;
+    p.rot+=p.rv;
+    if(p.y<-30) Object.assign(p,mkP());
+    bgX.save();
+    bgX.globalAlpha=p.alpha;
+    bgX.font=`${p.size}px serif`;
+    bgX.fillStyle=p.col;
+    bgX.translate(p.x,p.y);
+    bgX.rotate(p.rot);
+    bgX.textAlign='center';bgX.textBaseline='middle';
+    bgX.fillText(p.sym,0,0);
+    bgX.restore();
+  }
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+/* ═══════════════════════════════
+   CONFETTI / CELEBRATION
+═══════════════════════════════ */
+const cnC  = document.getElementById('confCanvas');
+const cnX  = cnC.getContext('2d');
+let cnP=[],cnOn=false;
+
+function resizeCn(){cnC.width=innerWidth;cnC.height=innerHeight;}
+resizeCn();addEventListener('resize',resizeCn);
+
+const CSYM=['♥','♡','✦','✿','★','💕','✧','❀','💖'];
+const CCOL=['#ff4d8f','#ffb3cc','#e8306a','#ff85b3','#ffd6e8','#c87cff','#ffe066','#fff'];
+
+function burst(n,cx,cy){
+  for(let i=0;i<n;i++){
+    const spd=Math.random()*11+4;
+    const ang=Math.random()*Math.PI*2;
+    cnP.push({
+      x:cx+(Math.random()-.5)*60,y:cy+(Math.random()-.5)*60,
+      vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd-4,
+      g:.25,
+      rot:Math.random()*Math.PI*2,rv:(Math.random()-.5)*.14,
+      size:Math.random()*20+8,
+      sym:CSYM[Math.random()*CSYM.length|0],
+      col:CCOL[Math.random()*CCOL.length|0],
+      life:1,dec:Math.random()*.013+.006,
+    });
+  }
+}
+
+function drawCn(){
+  if(!cnOn)return;
+  cnX.clearRect(0,0,cnC.width,cnC.height);
+  cnP=cnP.filter(p=>p.life>0);
+  for(const p of cnP){
+    p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;
+    p.rot+=p.rv;p.life-=p.dec;
+    cnX.save();
+    cnX.globalAlpha=Math.max(0,p.life);
+    cnX.font=`${p.size}px serif`;
+    cnX.fillStyle=p.col;
+    cnX.translate(p.x,p.y);cnX.rotate(p.rot);
+    cnX.textAlign='center';cnX.textBaseline='middle';
+    cnX.fillText(p.sym,0,0);
+    cnX.restore();
+  }
+  if(Math.random()<.18) burst(4,Math.random()*cnC.width,Math.random()*cnC.height*.5);
+  requestAnimationFrame(drawCn);
+}
+
+function startConf(){
+  cnOn=true;cnC.classList.add('on');
+  burst(180,innerWidth/2,innerHeight/2);
+  drawCn();
+}
+
+/* ═══════════════════════════════
+   SPARKLE BURST (CSS)
+═══════════════════════════════ */
+function sparkleBurst(cx,cy){
+  const emojis=['✦','✧','💖','✿','★','💕','❀','✩'];
+  for(let i=0;i<22;i++){
+    const el=document.createElement('span');
+    el.className='sparkle';
+    el.textContent=emojis[i%emojis.length];
+    const ang=Math.random()*Math.PI*2;
+    const dist=60+Math.random()*160;
+    const tx=`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px)`;
+    el.style.setProperty('--tx',tx);
+    el.style.left=(cx-12)+'px';
+    el.style.top=(cy-12)+'px';
+    el.style.animationDelay=(Math.random()*.35)+'s';
+    el.style.fontSize=(1+Math.random()*.8)+'rem';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1400);
+  }
+}
+
+/* ═══════════════════════════════
+   NO BUTTON
+═══════════════════════════════ */
+const btnNo =document.getElementById('btnNo');
+const btnYes=document.getElementById('btnYes');
+const NO_TXT=['NO','Are you sure?','Think again…','Last chance!','...'];
+let noN=0,runaway=false;
+let yBase=parseFloat(getComputedStyle(btnYes).fontSize);
+let nBase=parseFloat(getComputedStyle(btnNo).fontSize);
+
+function clickNo(){
+  noN++;
+  btnNo.textContent=NO_TXT[Math.min(noN,NO_TXT.length-1)];
+
+  const yS=1+noN*.24, nS=Math.max(0,1-noN*.2);
+  btnYes.style.fontSize=(yBase*yS)+'px';
+  btnYes.style.padding=`${.9*yS}em ${2.2*yS}em`;
+
+  if(nS<=0){
+    btnNo.style.transition='all .45s ease';
+    btnNo.style.opacity='0';btnNo.style.transform='scale(0)';
+    setTimeout(()=>btnNo.style.display='none',460);
+    return;
+  }
+  btnNo.style.fontSize=(nBase*nS)+'px';
+  btnNo.style.opacity=String(Math.max(.22,nS));
+
+  if(noN>=2&&!runaway){
+    runaway=true;
+    btnNo.classList.add('runaway');
+    document.body.appendChild(btnNo);
+    jumpNo();
+  } else if(runaway) jumpNo();
+}
+
+function jumpNo(){
+  const m=90,r=btnNo.getBoundingClientRect();
+  const mx=innerWidth -r.width -m, my=innerHeight-r.height-m;
+  btnNo.style.left=(m+Math.random()*Math.max(0,mx-m))+'px';
+  btnNo.style.top =(m+Math.random()*Math.max(0,my-m))+'px';
+}
+
+/* ═══════════════════════════════
+   YES BUTTON
+═══════════════════════════════ */
+function clickYes(){
+  const rect=btnYes.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+  sparkleBurst(cx,cy);
+  startConf();
+
+  const s1=document.getElementById('s1');
+  s1.classList.add('out');
+  setTimeout(()=>{
+    s1.classList.add('gone');
+    const s2=document.getElementById('s2');
+    s2.classList.remove('gone');
+    /* force reflow then fade in */
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        s2.classList.remove('out');
+        /* extra sparkle burst from center */
+        setTimeout(()=>sparkleBurst(innerWidth/2,innerHeight/2),300);
+        setTimeout(()=>sparkleBurst(innerWidth/2,innerHeight/2),600);
+      });
+    });
+  },900);
+}
+</script>
+</body>
+</html>
