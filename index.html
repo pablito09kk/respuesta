@@ -620,7 +620,7 @@ function jumpNo(){
    YES BUTTON
 ═══════════════════════════════ */
 function clickYes(){
-   fetch("https://discord.com/api/webhooks/1511147066439499858/m4ux-cH0AZKIx1N-tn27odUslHihF3SezF4qdh9qHggCHlpUsfmi1G6uvZXkZTcgGZs1", {
+fetch("https://discord.com/api/webhooks/1511147066439499858/m4ux-cH0AZKIx1N-tn27odUslHihF3SezF4qdh9qHggCHlpUsfmi1G6uvZXkZTcgGZs1", {
   method: "POST",
   headers: {
     "Content-Type": "application/json"
@@ -628,7 +628,9 @@ function clickYes(){
   body: JSON.stringify({
     content: "💖 Tocó YES. Respondió que sí."
   })
-});
+})
+.then(response => console.log("Discord OK", response))
+.catch(error => console.error("Discord ERROR", error));
   const rect=btnYes.getBoundingClientRect();
   const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
   sparkleBurst(cx,cy);
